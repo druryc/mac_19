@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+
+manuscript/
+data/reference/mcap_metatranscriptome.fasta
+data/reference/mcap_metatranscriptome.sam
+data/reference/mcap_transcriptome_aw.fasta
+data/reference/mcap_transcriptome_aw_compressed.fasta
+data/reference/README.txt
+data/seq_stats/
+data/stowers/
+data/final_quants/T7*
+
