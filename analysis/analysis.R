@@ -339,13 +339,13 @@ j<-"11";i<-"Constant High"
 temp<-drcdat%>%filter(treatment==paste0(i),colony==paste0(j))%>%mutate(fvfm=case_when(fvfm=1&&duration>5~NA_real_,TRUE~as.numeric(fvfm)))
 model1<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
 best<-(as.data.frame(mselect(model1, fctList = list(W1.2(),W1.3(),W1.4(),W2.3(),W2.4(),LL.2(),LL.3(),LL.4())))%>%rownames_to_column())[1,1];best
-plot(model1,type="all")
+#plot(model1,type="all")
 model2<-drm(fvfm~accumulated,data=temp,fct=W2.3(fixed=c(NA,1,NA)))
-plot(model2,type="all")
+#plot(model2,type="all")
 cut<-3*mean(cooks.distance(model2))
 newtemp<-bind_cols(temp,as.data.frame(cooks.distance(model2)))%>%dplyr::rename(cooks=10)%>%mutate(fvfm=case_when(cooks>cut~NA_real_,TRUE~as.numeric(fvfm)))
 model3<-drm(fvfm~accumulated,data=newtemp,fct=W2.3(fixed=c(NA,1,NA)))
-plot(model3,type="all")
+#plot(model3,type="all")
 newdata<-expand.grid(accumulated=seq(min(drcdat$accumulated),max(drcdat$accumulated),length=100))
 pm<-predict(model3, newdata=newdata, interval="confidence")
 newdata$p<-pm[,1];newdata$pmin <- pm[,2];newdata$pmax <- pm[,3]
@@ -357,13 +357,13 @@ j<-"20";i<-"Control"
 temp<-drcdat%>%filter(treatment==paste0(i),colony==paste0(j))%>%mutate(fvfm=case_when(fvfm=1&&duration>5~NA_real_,TRUE~as.numeric(fvfm)))
 model1<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
 best<-(as.data.frame(mselect(model1, fctList = list(W1.2(),W1.3(),W1.4(),W2.3(),W2.4(),LL.2(),LL.3(),LL.4())))%>%rownames_to_column())[1,1];best
-plot(model1)
+#plot(model1)
 model2<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
-plot(model2)
+#plot(model2)
 cut<-3*mean(cooks.distance(model2))
 newtemp<-bind_cols(temp,as.data.frame(cooks.distance(model2)))%>%dplyr::rename(cooks=10)%>%mutate(fvfm=case_when(cooks>cut~NA_real_,TRUE~as.numeric(fvfm)))
 model3<-drm(fvfm~accumulated,data=newtemp,fct=W1.3(fixed=c(NA,1,NA)))
-plot(model3)
+#plot(model3)
 newdata<-expand.grid(accumulated=seq(min(drcdat$accumulated),max(drcdat$accumulated),length=100))
 pm<-predict(model3, newdata=newdata, interval="confidence")
 newdata$p<-pm[,1];newdata$pmin <- pm[,2];newdata$pmax <- pm[,3]
@@ -375,9 +375,9 @@ j<-"202";i<-"Constant High"
 temp<-drcdat%>%filter(treatment==paste0(i),colony==paste0(j))%>%mutate(fvfm=case_when(fvfm=1&&duration>5~NA_real_,TRUE~as.numeric(fvfm)))
 model1<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
 best<-(as.data.frame(mselect(model1, fctList = list(W1.2(),W1.3(),W1.4(),W2.3(),W2.4(),LL.2(),LL.3(),LL.4())))%>%rownames_to_column())[1,1];best
-plot(model1)
+#plot(model1)
 model2<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
-plot(model2)
+#plot(model2)
 newdata<-expand.grid(accumulated=seq(min(drcdat$accumulated),max(drcdat$accumulated),length=100))
 pm<-predict(model2, newdata=newdata, interval="confidence")
 newdata$p<-pm[,1];newdata$pmin <- pm[,2];newdata$pmax <- pm[,3]
@@ -390,13 +390,13 @@ i<-"Constant High"
 temp<-drcdat%>%filter(treatment==paste0(i),colony==paste0(j))%>%mutate(fvfm=case_when(fvfm=1&&duration>5~NA_real_,TRUE~as.numeric(fvfm)))
 model1<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
 best<-(as.data.frame(mselect(model1, fctList = list(W1.2(),W1.3(),W1.4(),W2.3(),W2.4(),LL.2(),LL.3(),LL.4())))%>%rownames_to_column())[1,1];best
-plot(model1)
+#plot(model1)
 model2<-drm(fvfm~accumulated,data=temp,fct=W2.3(fixed=c(NA,1,NA)))
-plot(model2)
+#plot(model2)
 cut<-3*mean(cooks.distance(model2))
 newtemp<-bind_cols(temp,as.data.frame(cooks.distance(model2)))%>%dplyr::rename(cooks=10)%>%mutate(fvfm=case_when(cooks>cut~NA_real_,TRUE~as.numeric(fvfm)))
 model3<-drm(fvfm~accumulated,data=newtemp,fct=W1.3(fixed=c(NA,1,NA)))
-plot(model3)
+#plot(model3)
 newdata<-expand.grid(accumulated=seq(min(drcdat$accumulated),max(drcdat$accumulated),length=100))
 pm<-predict(model3, newdata=newdata, interval="confidence")
 newdata$p<-pm[,1];newdata$pmin <- pm[,2];newdata$pmax <- pm[,3]
@@ -408,9 +408,9 @@ j<-"222";i<-"Control"
 temp<-drcdat%>%filter(treatment==paste0(i),colony==paste0(j))%>%mutate(fvfm=case_when(fvfm=1&&duration>5~NA_real_,TRUE~as.numeric(fvfm)))
 model1<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
 best<-(as.data.frame(mselect(model1, fctList = list(W1.2(),W1.3(),W1.4(),W2.3(),W2.4(),LL.2(),LL.3(),LL.4())))%>%rownames_to_column())[1,1];best
-plot(model1)
+#plot(model1)
 model2<-drm(fvfm~accumulated,data=temp,fct=W1.3(fixed=c(NA,1,NA)))
-plot(model2)
+#plot(model2)
 newdata<-expand.grid(accumulated=seq(min(drcdat$accumulated),max(drcdat$accumulated),length=100))
 pm<-predict(model2, newdata=newdata, interval="confidence")
 newdata$p<-pm[,1];newdata$pmin <- pm[,2];newdata$pmax <- pm[,3]
@@ -491,6 +491,74 @@ nonbleached_labeled<-tag_facet2(nonbleached,
 quartz(w=7.2,h=3)
 plot_grid(plot_grid(trajectory,ed,nrow=2,align="v",axis="tb",rel_heights=c(2.5,1),labels=c("A","B"),label_size=8,label_y=c(0.99,1.2)),plot_grid(bleached_labeled,nonbleached_labeled,nrow=2,rel_heights=c(1,1.3),label_size=8,labels=c("C","")),rel_widths=c(1,2))
 
+
+########################################## BROAD SENSE HERITABILITY ######################################################## #####
+advantage<-readRDS("./data/modeled_advantage")
+t.test(advantage$advantage,mu=0,alternative="greater")
+t.test(advantage~phenotype,data=readRDS("./data/modeled_advantage"))
+
+counts<-drcdat%>%select(treatment,colony,fragment)%>%distinct()%>%group_by(treatment,colony)%>%tally()%>%mutate(colony=as.character(colony))
+working<-EDworking%>%select(-best)%>%left_join(.,counts,by=c("treatment","colony"))%>%
+  mutate(sd=se*sqrt(n))
+
+c_list<-working%>%select(colony)%>%distinct()
+t_list<-working%>%select(treatment)%>%distinct()
+out<-data.frame(sample=numeric(),treatment=character(),colony=character())
+for (i in t_list$treatment){
+  for (j in c_list$colony){
+    set.seed(3837)
+    temp<-working%>%filter(treatment==paste0(i),colony==paste0(j))
+    sd<-temp$sd
+    mean<-temp$ed10
+    list<-as.data.frame(rnorm(50,mean,sd))%>%mutate(treatment=paste0(i),colony=paste0(j))%>%dplyr::rename(sample=1)
+    out<-out%>%add_row(list)
+  }
+}
+
+herit<-cbind(out%>%filter(treatment=="Control")%>%arrange(colony),
+             out%>%filter(treatment=="Constant High")%>%arrange(colony))%>%
+  clean_names()%>%
+  dplyr::rename(control=1,high=4)%>%select(-treatment,-treatment_2,-colony_2)%>%
+  mutate(diff=high-control)%>%select(colony,diff)%>%left_join(.,meta%>%mutate(colony=as.character(colony)),by="colony")
+
+model<-aov(diff~colony,data=herit)
+summary(model)
+x<-broom::tidy(model)
+x[1,3]/(x[1,3]+x[2,3])
+
+model<-aov(diff~colony,data=herit%>%filter(phenotype=="B"))
+summary(model)
+x<-broom::tidy(model)
+x[1,3]/(x[1,3]+x[2,3])
+
+model<-aov(diff~colony,data=herit%>%filter(phenotype=="NB"))
+summary(model)
+x<-broom::tidy(model)
+x[1,3]/(x[1,3]+x[2,3])
+
+
+
+
+anno1=expression("H"^2~"=0.897; ~colony p<0.001")
+annob=expression("H"^2~"B only=0.916")
+annonb=expression("H"^2~"NB only=0.681")
+
+heritplot<-ggplot(herit)+
+  geom_hline(yintercept=0,linetype="dotted",color="gray")+
+  geom_boxplot(aes(reorder(colony,diff),diff,fill=phenotype),outlier.color = NA)+
+  theme_classic(base_size=8)+
+  ylab("Acclimatization Potential")+
+  xlab("Colony")+
+  theme(legend.position=c(0.2,0.9),
+        legend.key.size=unit(0.35,"cm"),
+        axis.text.x=element_text(angle=90))+
+  scale_fill_manual(values=cols,name="Phenotype",labels=c("Bleached","Nonbleached"))+
+  annotate("text",label=anno1,x=10,y=-3,size=2,fontface="italic",hjust=1)+
+  annotate("text",label=annob,x=10,y=-2.5,size=2,fontface="italic",hjust=1)+
+  annotate("text",label=annonb,x=10,y=-2,size=2,fontface="italic",hjust=1)+
+  annotate("text",label="N=1000 bootstrapped replicates\nper colony x treatment",x=10,hjust=1,size=2,fontface="italic",y=4)+
+  scale_y_continuous(limits=c(-3,4));heritplot
+
 basal_comparison<-EDworking%>%select(treatment,colony,ed10)%>%spread(treatment,ed10)%>%dplyr::rename(constant=2,control=3)%>%
   mutate(diff=constant-control)%>%left_join(.,meta%>%mutate(colony=as.factor(colony)),by="colony")
 
@@ -499,10 +567,9 @@ summary(lm(diff~control,data=basal_comparison%>%filter(control>4)))
 summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='B')))
 summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='NB')))
 
-anno1=expression("R"^2~"=0.187; p=0.212")
+anno2=expression("R"^2~"=0.187; p=0.212")
 
-quartz(w=2.5,h=2.5)
-ggplot(basal_comparison)+
+basalplot<-ggplot(basal_comparison)+
   geom_hline(aes(yintercept=0),linetype="dotted",color="gray")+
   geom_smooth(aes(control,diff),method="lm",color="darkgray",size=0.5,fill="lightgray")+
   #geom_smooth(aes(control,diff,color=phenotype,fill=phenotype),method="lm",fill=NA,size=0.5)+
@@ -511,25 +578,14 @@ ggplot(basal_comparison)+
   scale_fill_manual(values=cols)+
   theme_classic(base_size=8)+
   ylab("Acclimatization Potential")+xlab("Basal Tolerance (Control ED10)")+
-  annotate("text",x=5.5,y=4,label=anno1,size=2,hjust=1,fontface="italic")+
-  theme(legend.position=c(0.2,0.1),
+  annotate("text",x=5.5,y=-3,label=anno2,size=2,hjust=1,fontface="italic")+
+  theme(legend.position="none",
         legend.key.size=unit(0.1,"cm"),
-        legend.background=element_blank())
+        legend.background=element_blank())+
+  scale_y_continuous(limits=c(-3,4))
 
-########################################## DHW ADVANTAGE ################################################################### #####
-advantage<-readRDS("./data/modeled_advantage")
-t.test(advantage$advantage,mu=0,alternative="greater")
-t.test(advantage~phenotype,data=readRDS("./data/modeled_advantage"))
-
-quartz()
-c<-ggplot(readRDS("./data/modeled_advantage"))+geom_bar(aes(reorder(colony,advantage),advantage,fill=phenotype),stat="identity")+
-     theme_classic(base_size=8)+
-     scale_fill_manual(values=cols,name="Phenotype",labels=c("Bleached","Nonbleached"))+
-     xlab("Colony")+ylab("DHW Gained")+
-     theme(legend.position='none',
-           legend.key.size=unit(0.25,"cm"),
-           axis.text.x=element_text(angle=90))+
-     scale_y_continuous(limits=c(-2,2),breaks=seq(-4,4,1));c
+quartz(w=5.2,h=2.5)
+plot_grid(heritplot,basalplot,align="h",axis="tb",labels=c("A","B"),label_size=8)
 
 ########################################## DESEQ OVERALL ################################################################### #####
 library(DESeq2)#;library(snakecase)
