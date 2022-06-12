@@ -590,23 +590,24 @@ bardat<-out%>%group_by(treatment)%>%
      summarise(mean=mean(abs(log2FoldChange)),se=std.error(abs(log2FoldChange)))%>%
      left_join(.,out%>%group_by(treatment)%>%filter(padj<0.01)%>%tally(),by="treatment")
 bardat$treatment <- factor(bardat$treatment,levels = c("control","constant_high","pulse_high","pulse","pulse_increase"),labels = c("Control","Constant High","Pulse Increase","Pulse","Pulse High"))
-plotdata<-bardat%>%left_join(.,chars,by="treatment")
-summary(lm(mean~dhw,data=plotdata))
+reg_plotdata<-bardat%>%left_join(.,chars,by="treatment")
+summary(lm(mean~dhw,data=reg_plotdata))
 anno1=expression("R"^2~"=0.816; p=0.096")
 
-reg<-ggplot(plotdata)+geom_smooth(aes(mean,dhw),method="lm",color="darkgray")+
+reg<-ggplot(reg_plotdata)+geom_smooth(aes(mean,dhw),method="lm",color="darkgray")+
      geom_point(aes(mean,dhw,fill=treatment),pch=21,size=2,color="black")+
      scale_fill_manual(values=c(scales::viridis_pal()(5))[-5],name="Treatment")+
      theme_classic(base_size=8)+
      ylab("Experimental DHW")+xlab("mean log2FC")+
-     theme(legend.position=c(0.15,0.8),
+     theme(legend.position=c(0.3,0.9),
+           legend.background=element_blank(),
            legend.title = element_blank(),
            #legend.position=c(0.2,0.2),
            legend.key.size=unit(0.2,"cm"),
            legend.spacing.x=unit(0.1,"cm"))+
      #scale_x_continuous(limits=c(0,6))+
      scale_y_continuous(position="right")+
-     annotate("text",x=5,y=0.7,label=anno1,size=2,fontface="italic")+
+     annotate("text",x=5.25,y=0.7,label=anno1,size=2,fontface="italic")+
      guides(fill=guide_legend(nrow=4));reg
 
 bar<-ggplot(bardat)+geom_bar(aes(treatment,mean,fill=treatment),stat="identity")+
@@ -618,12 +619,49 @@ bar<-ggplot(bardat)+geom_bar(aes(treatment,mean,fill=treatment),stat="identity")
            axis.text.y=element_blank(),
            axis.ticks.y=element_blank())+
      scale_y_continuous(limits=c(0,6))+
-     scale_x_discrete(position="top")+
-     annotate("text",x=1,y=6,label="a",color="black",size=2,fontface="italic")+
-     annotate("text",x=2,y=5,label="b",color="black",size=2,fontface="italic")+
-     annotate("text",x=3,y=5.6,label="c",color="black",size=2,fontface="italic")+
-     annotate("text",x=4,y=5.4,label="d",color="black",size=2,fontface="italic")+
+     scale_x_discrete(position="top",limits = rev)+
+     annotate("text",x=4,y=6,label="a",color="black",size=2,fontface="italic")+
+     annotate("text",x=3,y=5,label="b",color="black",size=2,fontface="italic")+
+     annotate("text",x=2,y=5.6,label="c",color="black",size=2,fontface="italic")+
+     annotate("text",x=1,y=5.4,label="d",color="black",size=2,fontface="italic")+
            ylab("mean log2FC")+xlab("Treatment")+coord_flip();bar
+
+vsd<-readRDS("./data/vsd")
+pca<-prcomp(as.data.frame(t(vsd)))
+axes<-fviz_pca_ind(pca,axes = c(1,2))
+
+permanova_data<-right_join(meta,as.data.frame(t(vsd))%>%rownames_to_column(var="id"),by="id")
+t1<-permanova_data%>%filter(timepoint=="T1")
+t2<-permanova_data%>%filter(timepoint=="T2")
+
+set.seed(3839);adonis(t1[,10:ncol(t1)]~phenotype,data=t1,method="manhattan")
+set.seed(3839);adonis(t1[,10:ncol(t1)]~colony,data=t1,method="manhattan")
+set.seed(3839);adonis(t2[,10:ncol(t2)]~phenotype*treatment,data=t2,method="manhattan")
+summary(prcomp(permanova_data[,10:ncol(permanova_data)]))
+
+pca_plotdata<-as.data.frame(axes$data)%>%dplyr::rename(id=1)%>%left_join(.,meta,by="id")%>%mutate(colony=as.factor(colony))
+pca<-ggplot(pca_plotdata%>%filter(timepoint!="T7")%>%unite(group,phenotype,timepoint,sep="_",remove=FALSE))+
+  stat_ellipse(aes(x,y,lty=timepoint,color=phenotype),alpha=1)+
+  geom_point(aes(x,y,fill=timepoint),pch=21)+
+  scale_fill_manual(values=c("black","white"),name="Timepoint")+
+  scale_linetype_manual(values=c("solid","dotted"),name="Timepoint")+
+  scale_color_manual(values=c("#F39C12","#0000FF","#F39C12","#0000FF"),name="Phenotype",labels=c("B","NB"))+
+  new_scale_color()+
+  new_scale_fill()+
+  geom_point(aes(x,y,color=group,fill=group),pch=21)+
+  scale_color_manual(values=c("#F39C12","#F39C12","#0000FF","#0000FF"),name="Phenotype",guide="none")+
+  scale_fill_manual(values=c("#F39C12","white","#0000FF","white"),guide="none")+
+  theme_classic(base_size=8)+
+  theme(axis.ticks=element_blank(),
+        legend.position=c(0.87,0.2),
+        legend.key.height=unit(.2,"cm"),
+        legend.key.width=unit(0.5,"cm"),
+        legend.background = element_blank(),
+        legend.spacing.y=unit(0,"cm"))+
+  annotate("text",x=-75,y=-30,label="T1:~pheno p=0.012,~colony p=0.012",size=2,fontface="italic",hjust=0,vjust=1)+
+  annotate("text",x=-75,y=-34,label="T2:~pheno p=0.003,~colony ND",size=2,fontface="italic",hjust=0,vjust=1)+
+  scale_x_continuous(limits=c(-75,75))+scale_y_continuous(limits=c(-35,29))+
+  xlab("PC1 (9.1%)")+ylab("PC2 (3.6%)");pca
 
 # venndata<-out%>%filter(padj<0.01);venndatalist<-split(venndata$cluster, venndata$treatment)
 # venn<-ggVennDiagram(venndatalist,label='count',
@@ -641,94 +679,47 @@ bar<-ggplot(bardat)+geom_bar(aes(treatment,mean,fill=treatment),stat="identity")
 
 list<-out%>%filter(padj<0.01)%>%select(cluster)%>%distinct()
 dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
-test<-dat%>%sample_n(500)%>%dplyr::rename('Constant\nHigh'=1,"Pulse"=2,"Pulse\nHigh"=3,"Pulse\nIncrease"=4)
+m<-dat
+heat_plotdat<-m%>%
+  rownames_to_column(var="cluster")%>%
+  gather(treatment,exp,-cluster)
 
+clust_rows <- hclust(dist(m),method="complete")
+clust_cols <- hclust(dist(t(m)),method="average")
 
-dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
-#x<-ggheatmap(dat,scale="row",cluster_rows=T,cluster_cols=T,color=colorRampPalette(c( "red","white","blue"))(100),text_position_rows = NULL)
-#saveRDS(x,"./data/heatmap")
-x<-readRDS("./data/heatmap")
-heat<-(x$plotlist[[1]])+
-     theme_classic(base_size=8)+
-     theme(legend.position="right",
-           axis.text.y=element_blank(),axis.ticks.y=element_blank(),axis.title.y=element_blank(),axis.line.y=element_blank(),
-           axis.text.x=element_text(angle=20,hjust=1),
-           axis.title.x=element_blank(),
-           legend.title = element_text(angle = 90),
-           legend.margin=margin(0,0,0,0),
-           legend.box.margin=margin(-0,-0,-0,-5))+
-     #scale_fill_viridis_c(name="Log2FoldChange",breaks=c(-1,0,1),option = "plasma")+
-     scale_x_discrete(labels=c("Constant High","Pulse Increase","Pulse","Pulse High"))+
-     scale_fill_gradientn(colors=c(low="blue",mid="black",high="red"))+
-     guides(fill=guide_colorbar(title.position="left",barwidth = 0.2,barheight=4));heat
+heat<-ggplot(heat_plotdat)+geom_tile(aes(treatment,cluster,fill=exp))+
+  scale_fill_gradient2(low="blue",mid="black",high="red",name="Exp",midpoint=0)+
+  theme_classic(base_size=8)+
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank(),
+        axis.line=element_blank(),
+        axis.text.x=element_text(angle=30,vjust=1,hjust=1),
+        legend.key.width=unit(0.15,"cm"),
+        legend.position=c(1.5,0.5),
+        legend.background=element_blank())+
+  scale_y_discrete(limits = rownames(m)[clust_rows$order],expand=c(0,0))+
+  scale_x_discrete(limits = colnames(m)[clust_cols$order],labels=c("Constant\nHigh","Pulse\nHigh","Pulse","Pulse\nIncrease"),expand=c(0,0));heat
 
-x%>%ggheatmap_theme(1,theme =list(theme(axis.text.x = element_text(angle = 90,face = "bold",size = 10),
-                                      axis.text.y = element_text(colour = "red",face = "bold"))))
+hcdata_rows<-dendro_data(clust_rows,type="rectangle")
+hcdata_cols<-dendro_data(clust_cols,type="rectangle")
+hcdata_cols$segments<-hcdata_cols$segments%>%mutate(yend=case_when(yend==0~1500,TRUE ~ (yend)))
 
-library(pheatmap)
-labels_col=c("Constant\nHigh","Pulse","Pulse\nHigh","Pulse\nIncrease")
-heat<-pheatmap(dat,show_rownames = FALSE,color=colorRampPalette(c("blue","black","red"))(50),
-               clustering_method="average",labels_col=labels_col)
-
-vsd<-readRDS("./data/vsd")
-pca<-prcomp(as.data.frame(t(vsd)))
-axes<-fviz_pca_ind(pca,axes = c(1,2))
-
-permanova_data<-right_join(meta,as.data.frame(t(vsd))%>%rownames_to_column(var="id"),by="id")
-t1<-permanova_data%>%filter(timepoint=="T1")
-t2<-permanova_data%>%filter(timepoint=="T2")
-
-set.seed(3839);adonis(t1[,10:ncol(t1)]~phenotype,data=t1,method="manhattan")
-set.seed(3839);adonis(t1[,10:ncol(t1)]~colony,data=t1,method="manhattan")
-set.seed(3839);adonis(t2[,10:ncol(t2)]~phenotype*treatment,data=t2,method="manhattan")
-summary(prcomp(permanova_data[,10:ncol(permanova_data)]))
-
-plotdata<-as.data.frame(axes$data)%>%dplyr::rename(id=1)%>%left_join(.,meta,by="id")%>%mutate(colony=as.factor(colony))
-pca<-ggplot(plotdata%>%filter(timepoint!="T7")%>%unite(group,phenotype,timepoint,sep="_",remove=FALSE))+
-     stat_ellipse(aes(x,y,lty=timepoint,color=phenotype),alpha=1)+
-     geom_point(aes(x,y,fill=timepoint),pch=21)+
-     scale_fill_manual(values=c("black","white"),name="Timepoint")+
-     scale_linetype_manual(values=c("solid","dotted"),name="Timepoint")+
-     scale_color_manual(values=c("#F39C12","#0000FF","#F39C12","#0000FF"),name="Phenotype",labels=c("B","NB"))+
-     new_scale_color()+
-     new_scale_fill()+
-     geom_point(aes(x,y,color=group,fill=group),pch=21)+
-     scale_color_manual(values=c("#F39C12","#F39C12","#0000FF","#0000FF"),name="Phenotype",guide="none")+
-     scale_fill_manual(values=c("#F39C12","white","#0000FF","white"),guide="none")+
-     theme_classic(base_size=8)+
-     theme(axis.ticks=element_blank(),
-           legend.position=c(0.87,0.2),
-           legend.key.height=unit(.2,"cm"),
-           legend.key.width=unit(0.5,"cm"),
-           legend.background = element_blank(),
-           legend.spacing.y=unit(0,"cm"))+
-     annotate("text",x=-75,y=-30,label="T1:~pheno p=0.012,~colony p=0.012",size=2,fontface="italic",hjust=0,vjust=1)+
-     annotate("text",x=-75,y=-34,label="T2:~pheno p=0.003,~colony ND",size=2,fontface="italic",hjust=0,vjust=1)+
-     scale_x_continuous(limits=c(-75,75))+scale_y_continuous(limits=c(-35,35))+
-     xlab("PC1 (9.1%)")+ylab("PC2 (3.6%)");pca
+side<-ggplot()+ geom_segment(data=segment(hcdata_rows), aes(x=x, y=y, xend=xend, yend=yend),size=0.35)+scale_x_continuous(expand = c(0,0))+coord_flip()+theme_void()
+top<-ggplot()+ geom_segment(data=segment(hcdata_cols), aes(x=x, y=y, xend=xend, yend=yend),size=0.35)+theme_void()
+plots<-cowplot::align_plots(pca,bar,heat,side,align="h",axis="tb")
 
 quartz(w=7.2,h=2.5)
-plots<-align_plots(pca,bar,side,heat,align="h",axis="tb")
-
-plot_grid(plots[[1]],
-          plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8),
-          plots[[3]],plots[[4]],nrow=1,rel_widths=c(2,2,0.2,1))
-          
-plot_grid(pca,heat)
+plot_grid(plot_grid(NULL,NULL,top,NULL,NULL,rel_widths=c(2,3.7,1,0.35,0.4),nrow=1),
+          plot_grid(plots[[1]],plot_grid(reg,plots[[2]],ncol=1,align="v",axis="lr",labels=c("B","C"),label_size=8,label_x=c(-0.05,-0.05)),plots[[3]],plots[[4]],NULL,nrow=1,rel_widths=c(2,1.5,0.75,0.2,0.2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05)),
+          nrow=2,rel_heights=c(1,25))+
+  draw_label("N=5267",fontface = "italic", size=6,x=0.93,y=0.96)
 
 
 
-# plot_grid(plots[[1]],
-#           plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8),
-#           plots[[3]],nrow=1,rel_widths=c(3,2,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05))
-# 
-# 
-# plot_grid(plots[[1]],
-#           plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8)+#+draw_plot(venn,-0.05,0.15,0.7,1),
-#             plot_grid(x$plotlist[[3]]+theme_void()+coord_cartesian(ylim=c(90,120))+theme(title=element_blank())+
-#                         annotate("text",x=3.5,y=110,label="N=5267",size=2,fontface="italic"),
-#                       plots[[3]],ncol=1,rel_heights=c(1,8),align="v",axis="lr"),
-#           nrow=1,rel_widths=c(2,3,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05)) #xywh
+
+
+
 
 ########################################## CONSTANT HIGH PATTERNS ########################################################## #####
 set.seed(3839)
