@@ -1,4 +1,3 @@
-setwd("~/omics/mac19")
 library(tidyverse);library(janitor);library(readxl);library(lubridate)
 library(cowplot);library(ggdendro);library(ggVennDiagram);library(ggnewscale);library(ggheatmap);library(ggridges)
 library(vegan)
@@ -604,8 +603,7 @@ reg<-ggplot(plotdata)+geom_smooth(aes(mean,dhw),method="lm",color="darkgray")+
            legend.title = element_blank(),
            #legend.position=c(0.2,0.2),
            legend.key.size=unit(0.2,"cm"),
-           legend.spacing.x=unit(0.1,"cm"),
-           axis.title.x=element_blank())+
+           legend.spacing.x=unit(0.1,"cm"))+
      #scale_x_continuous(limits=c(0,6))+
      scale_y_continuous(position="right")+
      annotate("text",x=5,y=0.7,label=anno1,size=2,fontface="italic")+
@@ -627,64 +625,50 @@ bar<-ggplot(bardat)+geom_bar(aes(treatment,mean,fill=treatment),stat="identity")
      annotate("text",x=4,y=5.4,label="d",color="black",size=2,fontface="italic")+
            ylab("mean log2FC")+xlab("Treatment")+coord_flip();bar
 
-venndata<-out%>%filter(padj<0.01);venndatalist<-split(venndata$cluster, venndata$treatment)
-venn<-ggVennDiagram(venndatalist,label='count',
-              label_alpha = 0,
-              color = 'black',
-              category.names = c("Constant High","Pulse","Pulse High","Pulse Increase"),
-              set_size=2,
-              edge_color="black",
-              label_size=2,
-              edge_size=0.2)+
-     scale_fill_gradient(low="gray",high="turquoise2")+
-     scale_color_manual(values=c("black","black","black","black"))+
-     theme(legend.position="none")+
-     scale_x_continuous(expand = expansion(mult = .3));venn
+# venndata<-out%>%filter(padj<0.01);venndatalist<-split(venndata$cluster, venndata$treatment)
+# venn<-ggVennDiagram(venndatalist,label='count',
+#               label_alpha = 0,
+#               color = 'black',
+#               category.names = c("Constant High","Pulse","Pulse High","Pulse Increase"),
+#               set_size=2,
+#               edge_color="black",
+#               label_size=2,
+#               edge_size=0.2)+
+#      scale_fill_gradient(low="gray",high="turquoise2")+
+#      scale_color_manual(values=c("black","black","black","black"))+
+#      theme(legend.position="none")+
+#      scale_x_continuous(expand = expansion(mult = .3));venn
 
 list<-out%>%filter(padj<0.01)%>%select(cluster)%>%distinct()
 dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
 test<-dat%>%sample_n(500)%>%dplyr::rename('Constant\nHigh'=1,"Pulse"=2,"Pulse\nHigh"=3,"Pulse\nIncrease"=4)
 
-cols
-cols =c(scales::viridis_pal()(5))[-5]
-column_ha = HeatmapAnnotation(Treatment=c("CH","PH","P","PI"),col = list(Treatment = c("CH"="#440154FF","PI"="#3B528BFF","P"="#21908CFF","PH"="#21908CFF")))
 
-cols
-library(ComplexHeatmap)
-testplot<-Heatmap(test,
-        row_dend_side = c("right"),
-        show_row_names = FALSE,
-        show_column_names= FALSE,
-        clustering_method_rows = "average",
-        clustering_method_columns = "average",
-        column_names_gp = gpar(fontsize = 8),
-        heatmap_legend_param = list(title = "Expr",legend_height = unit(3, "cm"),grid_width = unit(0.1, "cm")),
-        column_dend_height = unit(1, "cm"),
-        row_dend_width=unit(0.6,"cm"),
-        col= c("purple", "white", "orange"),
-        top_annotation = column_ha);testplot
-
-fig<-grid.grab(wrap.grobs =T)
-
-#dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
+dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
 #x<-ggheatmap(dat,scale="row",cluster_rows=T,cluster_cols=T,color=colorRampPalette(c( "red","white","blue"))(100),text_position_rows = NULL)
 #saveRDS(x,"./data/heatmap")
-# x<-readRDS("./data/heatmap")
-# heat<-(x$plotlist[[1]])+
-#      theme_classic(base_size=8)+
-#      theme(legend.position="right",
-#            axis.text.y=element_blank(),axis.ticks.y=element_blank(),axis.title.y=element_blank(),axis.line.y=element_blank(),
-#            axis.text.x=element_text(angle=20,hjust=1),
-#            axis.title.x=element_blank(),
-#            legend.title = element_text(angle = 90),
-#            legend.margin=margin(0,0,0,0),
-#            legend.box.margin=margin(-0,-0,-0,-5))+
-#      scale_fill_viridis_c(name="Log2FoldChange",breaks=c(-1,0,1),option = "plasma")+
-#      scale_x_discrete(labels=c("Constant High","Pulse Increase","Pulse","Pulse High"))+
-#      guides(fill=guide_colorbar(title.position="left",barwidth = 0.2,barheight=4));heat
-# 
-# x$plotlist[[3]]+theme_classic()
-# x$plotlist[[2]]+theme_void()+theme(title=element_blank())
+x<-readRDS("./data/heatmap")
+heat<-(x$plotlist[[1]])+
+     theme_classic(base_size=8)+
+     theme(legend.position="right",
+           axis.text.y=element_blank(),axis.ticks.y=element_blank(),axis.title.y=element_blank(),axis.line.y=element_blank(),
+           axis.text.x=element_text(angle=20,hjust=1),
+           axis.title.x=element_blank(),
+           legend.title = element_text(angle = 90),
+           legend.margin=margin(0,0,0,0),
+           legend.box.margin=margin(-0,-0,-0,-5))+
+     #scale_fill_viridis_c(name="Log2FoldChange",breaks=c(-1,0,1),option = "plasma")+
+     scale_x_discrete(labels=c("Constant High","Pulse Increase","Pulse","Pulse High"))+
+     scale_fill_gradientn(colors=c(low="blue",mid="black",high="red"))+
+     guides(fill=guide_colorbar(title.position="left",barwidth = 0.2,barheight=4));heat
+
+x%>%ggheatmap_theme(1,theme =list(theme(axis.text.x = element_text(angle = 90,face = "bold",size = 10),
+                                      axis.text.y = element_text(colour = "red",face = "bold"))))
+
+library(pheatmap)
+labels_col=c("Constant\nHigh","Pulse","Pulse\nHigh","Pulse\nIncrease")
+heat<-pheatmap(dat,show_rownames = FALSE,color=colorRampPalette(c("blue","black","red"))(50),
+               clustering_method="average",labels_col=labels_col)
 
 vsd<-readRDS("./data/vsd")
 pca<-prcomp(as.data.frame(t(vsd)))
@@ -724,19 +708,27 @@ pca<-ggplot(plotdata%>%filter(timepoint!="T7")%>%unite(group,phenotype,timepoint
      xlab("PC1 (9.1%)")+ylab("PC2 (3.6%)");pca
 
 quartz(w=7.2,h=2.5)
-plots<-align_plots(pca,bar,fig,align="h",axis="tb")
-plot_grid(plots[[1]],
-          plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8)+#+draw_plot(venn,-0.05,0.15,0.7,1),
-          plot_grid(x$plotlist[[3]]+theme_void()+coord_cartesian(ylim=c(90,120))+theme(title=element_blank())+
-                         annotate("text",x=3.5,y=110,label="N=5267",size=2,fontface="italic"),
-                    plots[[3]],ncol=1,rel_heights=c(1,8),align="v",axis="lr"),
-          nrow=1,rel_widths=c(2,3,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05)) #xywh
+plots<-align_plots(pca,bar,side,heat,align="h",axis="tb")
 
 plot_grid(plots[[1]],
           plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8),
-          plots[[3]],nrow=1,rel_widths=c(3,2,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05))
+          plots[[3]],plots[[4]],nrow=1,rel_widths=c(2,2,0.2,1))
+          
+plot_grid(pca,heat)
 
 
+
+# plot_grid(plots[[1]],
+#           plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8),
+#           plots[[3]],nrow=1,rel_widths=c(3,2,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05))
+# 
+# 
+# plot_grid(plots[[1]],
+#           plot_grid(reg,plots[[2]],align="v",axis="lr",ncol=1,rel_heights=c(2,1),labels=c("B","C"),label_size=8)+#+draw_plot(venn,-0.05,0.15,0.7,1),
+#             plot_grid(x$plotlist[[3]]+theme_void()+coord_cartesian(ylim=c(90,120))+theme(title=element_blank())+
+#                         annotate("text",x=3.5,y=110,label="N=5267",size=2,fontface="italic"),
+#                       plots[[3]],ncol=1,rel_heights=c(1,8),align="v",axis="lr"),
+#           nrow=1,rel_widths=c(2,3,2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05)) #xywh
 
 ########################################## CONSTANT HIGH PATTERNS ########################################################## #####
 set.seed(3839)
