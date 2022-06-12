@@ -149,7 +149,7 @@ st<-read_xlsx("./data/metadata.xlsx",sheet="stress_temps")%>%
      theme_classic(base_size=8)+
      ylab("Temperature (°C)")+xlab("Date")+
      theme(legend.position = "none")+
-     annotate("text",x=as_datetime('2019-11-14'),y=32.5,label="N=2 tanks",fontface="italic",hjust=0,size=2)+
+     #annotate("text",x=as_datetime('2019-11-14'),y=32.5,label="N=2 tanks",fontface="italic",hjust=0,size=2)+
      annotate("text",x=as_datetime('2019-11-26'),y=28.7,label="PAM timepoints",fontface="italic",hjust=1,size=2)+
      annotate("point",x=as_datetime('2019-11-15'),y=28.3)+
      annotate("point",x=as_datetime('2019-11-16'),y=28.3)+
@@ -491,35 +491,37 @@ nonbleached_labeled<-tag_facet2(nonbleached,
 quartz(w=7.2,h=3)
 plot_grid(plot_grid(trajectory,ed,nrow=2,align="v",axis="tb",rel_heights=c(2.5,1),labels=c("A","B"),label_size=8,label_y=c(0.99,1.2)),plot_grid(bleached_labeled,nonbleached_labeled,nrow=2,rel_heights=c(1,1.3),label_size=8,labels=c("C","")),rel_widths=c(1,2))
 
-test<-EDworking%>%select(treatment,colony,ed10)%>%spread(treatment,ed10)%>%dplyr::rename(constant=2,control=3)%>%
+basal_comparison<-EDworking%>%select(treatment,colony,ed10)%>%spread(treatment,ed10)%>%dplyr::rename(constant=2,control=3)%>%
   mutate(diff=constant-control)%>%left_join(.,meta%>%mutate(colony=as.factor(colony)),by="colony")
 
-summary(lm(diff~control,data=test))
-summary(lm(diff~control,data=test%>%filter(control>4)))
-summary(lm(diff~control,data=test%>%filter(phenotype=='B')))
-summary(lm(diff~control,data=test%>%filter(phenotype=='NB')))
+summary(lm(diff~control,data=basal_comparison))
+summary(lm(diff~control,data=basal_comparison%>%filter(control>4)))
+summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='B')))
+summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='NB')))
 
 anno1=expression("R"^2~"=0.187; p=0.212")
 
 quartz(w=2.5,h=2.5)
-ggplot(test)+
+ggplot(basal_comparison)+
   geom_hline(aes(yintercept=0),linetype="dotted",color="gray")+
-  geom_smooth(aes(control,diff),method="lm",color="black",size=0.5)+
-  geom_smooth(aes(control,diff,color=phenotype,fill=phenotype),method="lm",fill=NA,size=0.5)+
+  geom_smooth(aes(control,diff),method="lm",color="darkgray",size=0.5,fill="lightgray")+
+  #geom_smooth(aes(control,diff,color=phenotype,fill=phenotype),method="lm",fill=NA,size=0.5)+
   geom_point(aes(control,diff,color=phenotype))+
   scale_color_manual(values=cols,name="Phenotype")+
   scale_fill_manual(values=cols)+
   theme_classic(base_size=8)+
   ylab("Acclimatization Potential")+xlab("Basal Tolerance (Control ED10)")+
-  annotate("text",x=2,y=4,label=anno1,size=2,hjust=0,fontface="italic")+
-  theme(legend.position=c(0.2,0.2),
-        legend.key.size=unit(0.1,"cm"))
+  annotate("text",x=5.5,y=4,label=anno1,size=2,hjust=1,fontface="italic")+
+  theme(legend.position=c(0.2,0.1),
+        legend.key.size=unit(0.1,"cm"),
+        legend.background=element_blank())
 
 ########################################## DHW ADVANTAGE ################################################################### #####
 advantage<-readRDS("./data/modeled_advantage")
 t.test(advantage$advantage,mu=0,alternative="greater")
 t.test(advantage~phenotype,data=readRDS("./data/modeled_advantage"))
 
+quartz()
 c<-ggplot(readRDS("./data/modeled_advantage"))+geom_bar(aes(reorder(colony,advantage),advantage,fill=phenotype),stat="identity")+
      theme_classic(base_size=8)+
      scale_fill_manual(values=cols,name="Phenotype",labels=c("Bleached","Nonbleached"))+
