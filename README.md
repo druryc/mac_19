@@ -3,10 +3,10 @@
 Data and code associated with:
 
 ## Expression plasticity regulates intraspecific variation in the acclimatization potential of a reef-building coral
-### Crawford Drury ^1^, Jenna Dilworth ^1,2^, Eva Majerová ^1^, Carlo Caruso ^1^, Justin B Greer ^3^
+#### Crawford Drury ^1^, Jenna Dilworth ^1,2^, Eva Majerová ^1^, Carlo Caruso ^1^, Justin B Greer ^3^
 
 ^1^ Hawaiʻi Institute of Marine Biology, Kāneʻohe, HI  
-^2^ University of Southern California, Los Angeles, CA  
+<sup>2</sup> University of Southern California, Los Angeles, CA  
 ^3^ US Geological Survey, Northwestern Fisheries Research Center, Seattle, WA  
 
 
