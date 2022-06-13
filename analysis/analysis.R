@@ -744,14 +744,15 @@ heat_plotdat<-m%>%
 clust_rows <- hclust(dist(m),method="complete")
 clust_cols <- hclust(dist(t(m)),method="average")
 
-heat<-ggplot(heat_plotdat)+geom_tile(aes(treatment,cluster,fill=exp))+
+heat<-ggplot(heat_plotdat)+
+  geom_tile(aes(treatment,cluster,fill=exp),size=0)+
   scale_fill_gradient2(low="blue",mid="black",high="red",name="Exp",midpoint=0)+
   theme_classic(base_size=8)+
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
         axis.title=element_blank(),
         axis.line=element_blank(),
-        axis.text.x=element_text(angle=30,vjust=1,hjust=1),
+        axis.text.x=element_text(angle=45,vjust=1,hjust=1),
         legend.key.width=unit(0.15,"cm"),
         legend.position=c(1.5,0.5),
         legend.background=element_blank())+
