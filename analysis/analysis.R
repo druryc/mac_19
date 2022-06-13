@@ -536,12 +536,12 @@ summary(model)
 x<-broom::tidy(model)
 x[1,3]/(x[1,3]+x[2,3])
 
-
-
-
 anno1=expression("H"^2~"=0.897; ~colony p<0.001")
 annob=expression("H"^2~"B only=0.916")
 annonb=expression("H"^2~"NB only=0.681")
+
+(0.916-0.681)/0.681
+
 
 heritplot<-ggplot(herit)+
   geom_hline(yintercept=0,linetype="dotted",color="gray")+
@@ -568,7 +568,6 @@ summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='B')))
 summary(lm(diff~control,data=basal_comparison%>%filter(phenotype=='NB')))
 
 anno2=expression("R"^2~"=0.187; p=0.212")
-
 basalplot<-ggplot(basal_comparison)+
   geom_hline(aes(yintercept=0),linetype="dotted",color="gray")+
   geom_smooth(aes(control,diff),method="lm",color="darkgray",size=0.5,fill="lightgray")+
@@ -831,7 +830,13 @@ a<-bind_rows(read_delim("./data/GO_MWU_constant/MWU_BP_0_heats.txt",delim=" ")%>
 
 # write.table(a,"./manuscript/ST1.txt",quote=FALSE,row.names = FALSE,sep="\t")
 
+dixon<-read_xlsx("data/dixon_go_mwu.xlsx")
+list<-a%>%select(2)%>%rename(term=1)%>%separate(term,into=c('t1','t2'),sep=";")%>%
+  gather(term,group)%>%drop_na()%>%select(-term)%>%dplyr::rename(term=group)
 
+dixon%>%select(delta.rank,pval,term,name)%>%right_join(.,list,by="term")
+ATP<-dixon%>%filter(grepl("ATP",name))
+GTP<-dixon%>%filter(grepl("GTP",name)) 
 
 ########################################## COLONY-SPECIFIC DEGs ############################################################ #####
 meta<-read_xlsx("./data/metadata.xlsx",sheet="big_frags")%>%clean_names()
