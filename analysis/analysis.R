@@ -772,11 +772,33 @@ plot_grid(plot_grid(NULL,NULL,top,NULL,NULL,rel_widths=c(2,3.7,1,0.35,0.4),nrow=
           nrow=2,rel_heights=c(1,25))+
   draw_label("N=5267",fontface = "italic", size=6,x=0.93,y=0.96)
 
+########################################## SHARED CONSTNAT PULSE PATTERNS ENRICHMENT ####################################### #####
+cluster_list<-read_tsv("./data/reference/cluster_list.txt",col_names = FALSE)%>%dplyr::rename(cluster=1,contig=2)%>%fill(cluster)%>%drop_na()
+GO<-read_tsv("./data/reference/GO_output.txt",col_names = FALSE)%>%dplyr::rename(gene=1,GO=2)
+blast<-read_tsv("./data/reference/blast_output.txt",col_names=FALSE)%>%
+  select(X1,X2,X11)%>%dplyr::rename(contig=X1,gene=X2,e_value=X11)%>%
+  separate(gene,into=c("trash","gene"),sep="\\|",extra='drop')%>%select(-trash)%>%
+  group_by(contig)%>%arrange(e_value,.by_group = TRUE)%>%group_by(contig)%>%slice_min(e_value,n=1,with_ties=F)
 
+table<-left_join(blast,cluster_list,by="contig")%>%left_join(.,GO,by="gene")%>%ungroup()%>%select(cluster,GO)%>%drop_na()
 
+569/3826
+dixon<-read_xlsx("data/dixon_go_mwu.xlsx")%>%select(delta.rank,pval,term,name)
+shared<-out%>%filter(treatment=="constant_high"|treatment=="pulse")%>%
+  filter(padj<0.01)%>%
+  select(-padj)%>%
+  spread(treatment,log2FoldChange)%>%
+  drop_na()%>%
+  mutate(keep=case_when((constant_high<0&pulse<0)|(constant_high>0&pulse>0)~"y",TRUE~"n"))%>%
+  filter(keep=='y')%>%
+  mutate(exp=(constant_high+pulse)/2)
 
-
-
+shared_out<-shared%>%left_join(.,table,by="cluster")%>%drop_na()%>%separate(GO,into=c("a","b","c","d","e","f","g","h","i"),sep=";")%>%
+  select(-constant_high,-pulse)%>%
+  gather(group,term,-cluster,-exp)%>%
+  select(-group)%>%
+  left_join(.,dixon,by="term")%>%
+  filter(pval<0.01)
 
 ########################################## CONSTANT HIGH PATTERNS ########################################################## #####
 set.seed(3839)
