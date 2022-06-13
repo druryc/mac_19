@@ -782,7 +782,6 @@ blast<-read_tsv("./data/reference/blast_output.txt",col_names=FALSE)%>%
 
 table<-left_join(blast,cluster_list,by="contig")%>%left_join(.,GO,by="gene")%>%ungroup()%>%select(cluster,GO)%>%drop_na()
 
-569/3826
 dixon<-read_xlsx("data/dixon_go_mwu.xlsx")%>%select(delta.rank,pval,term,name)
 shared<-out%>%filter(treatment=="constant_high"|treatment=="pulse")%>%
   filter(padj<0.01)%>%
@@ -792,6 +791,7 @@ shared<-out%>%filter(treatment=="constant_high"|treatment=="pulse")%>%
   mutate(keep=case_when((constant_high<0&pulse<0)|(constant_high>0&pulse>0)~"y",TRUE~"n"))%>%
   filter(keep=='y')%>%
   mutate(exp=(constant_high+pulse)/2)
+569/3826
 
 shared_out<-shared%>%left_join(.,table,by="cluster")%>%drop_na()%>%separate(GO,into=c("a","b","c","d","e","f","g","h","i"),sep=";")%>%
   select(-constant_high,-pulse)%>%
