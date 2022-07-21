@@ -127,6 +127,8 @@ y<-read_xlsx("./data/metadata.xlsx",sheet="small_frags")%>%clean_names()
 x<-read_xlsx("./data/metadata.xlsx",sheet="field_pam")%>%clean_names()%>%inner_join(.,y,by="fragment")%>%select(colony.y,treatment)
 table(x$colony.y,x$treatment)
 
+write.table(treatments,"./manuscript/final_submission/source_data/f1b.txt",quote=FALSE,sep="\t",row.names = FALSE)
+write.table(chars,"./manuscript/final_submission/source_data/f1cd.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 
 ########################################## DRM OVERALL ##################################################################### #####
@@ -141,8 +143,9 @@ st<-read_xlsx("./data/metadata.xlsx",sheet="stress_temps")%>%
      mutate(date_time=ymd_hms(date_time))%>%
      filter(Tank_6>28,Tank_7>28)%>%
      mutate(temp=(Tank_6+Tank_7)/2)%>%
-     filter(date_time<'2019-11-27')%>%
-     ggplot(.)+
+     filter(date_time<'2019-11-27')
+
+stplot<-ggplot(st)+
      geom_point(aes(date_time,temp),size=0.2,alpha=0.5)+
      geom_smooth(aes(date_time,temp),size=0.5,color="red")+
      scale_x_datetime(date_breaks="1 day",minor_breaks=waiver(),labels=date_format("%m-%d"))+
@@ -157,7 +160,9 @@ st<-read_xlsx("./data/metadata.xlsx",sheet="stress_temps")%>%
      annotate("point",x=as_datetime('2019-11-20'),y=28.3)+
      annotate("point",x=as_datetime('2019-11-22'),y=28.3)+
      annotate("point",x=as_datetime('2019-11-24'),y=28.3)+
-     annotate("point",x=as_datetime('2019-11-26'),y=28.3);st
+     annotate("point",x=as_datetime('2019-11-26'),y=28.3);stplot
+
+write.table(st,"./manuscript/final_submission/source_data/fs1.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 temperature<-read_xlsx("./data/metadata.xlsx",sheet="stress_temps")%>%clean_names()%>%
      drop_na()%>%
@@ -219,6 +224,8 @@ drcdat<-read_xlsx("./data/metadata.xlsx",sheet="stress_pam")%>%janitor::clean_na
      filter(group=="field")%>%select(-group)%>%
      mutate(fvfm=case_when(fvfm>1~1,TRUE~as.numeric(fvfm)))%>%drop_na()
 # saveRDS(drcdat,"./data/drcdata")
+write.table(drcdat,"./manuscript/final_submission/source_data/f2a.txt",quote=FALSE,sep="\t",row.names = FALSE)
+
 
 initial_pam<-read_xlsx("./data/metadata.xlsx",sheet="stress_pam")%>%janitor::clean_names()%>%left_join(.,meta,by="fragment")%>%
      mutate(t1=(t14_fvfm_1+t14_fvfm_2)/2)
@@ -248,6 +255,7 @@ for (i in t_list$treatment){
      }
 }
 detach("package:drc", unload=TRUE);detach("package:MASS", unload=TRUE)
+write.table(ED,"./manuscript/final_submission/source_data/f2b.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 z<-drcdat%>%group_by(treatment,phenotype)%>%select(fragment)%>%distinct()%>%select(-fragment)%>%add_tally()%>%distinct()
 
@@ -491,6 +499,7 @@ nonbleached_labeled<-tag_facet2(nonbleached,
 quartz(w=7.2,h=3)
 plot_grid(plot_grid(trajectory,ed,nrow=2,align="v",axis="tb",rel_heights=c(2.5,1),labels=c("A","B"),label_size=8,label_y=c(0.99,1.2)),plot_grid(bleached_labeled,nonbleached_labeled,nrow=2,rel_heights=c(1,1.3),label_size=8,labels=c("C","")),rel_widths=c(1,2))
 
+write.table(plotdata,"./manuscript/final_submission/source_data/f2c.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 ########################################## BROAD SENSE HERITABILITY ######################################################## #####
 advantage<-readRDS("./data/modeled_advantage")
@@ -542,7 +551,6 @@ annonb=expression("H"^2~"NB only=0.681")
 
 (0.916-0.681)/0.681
 
-
 heritplot<-ggplot(herit)+
   geom_hline(yintercept=0,linetype="dotted",color="gray")+
   geom_boxplot(aes(reorder(colony,diff),diff,fill=phenotype),outlier.color = NA)+
@@ -585,6 +593,8 @@ basalplot<-ggplot(basal_comparison)+
 
 quartz(w=5.2,h=2.5)
 plot_grid(heritplot,basalplot,align="h",axis="tb",labels=c("A","B"),label_size=8)
+write.table(herit,"./manuscript/final_submission/source_data/f3a.txt",quote=FALSE,sep="\t",row.names = FALSE)
+write.table(basal_comparison,"./manuscript/final_submission/source_data/f3b.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 ########################################## DESEQ OVERALL ################################################################### #####
 library(DESeq2)#;library(snakecase)
@@ -683,11 +693,15 @@ bar<-ggplot(bardat)+geom_bar(aes(treatment,mean,fill=treatment),stat="identity")
      annotate("text",x=1,y=5.4,label="d",color="black",size=2,fontface="italic")+
            ylab("mean log2FC")+xlab("Treatment")+coord_flip();bar
 
+write.table(reg_plotdata,"./manuscript/final_submission/source_data/f4b.txt",quote=FALSE,sep="\t",row.names = FALSE)
+write.table(out,"./manuscript/final_submission/source_data/f4c.txt",quote=FALSE,sep="\t",row.names = FALSE)
+
 vsd<-readRDS("./data/vsd")
 pca<-prcomp(as.data.frame(t(vsd)))
 axes<-fviz_pca_ind(pca,axes = c(1,2))
-
 permanova_data<-right_join(meta,as.data.frame(t(vsd))%>%rownames_to_column(var="id"),by="id")
+write.table(permanova_data,"./manuscript/final_submission/source_data/f4a.txt",quote=FALSE,sep="\t",row.names = FALSE)
+
 t1<-permanova_data%>%filter(timepoint=="T1")
 t2<-permanova_data%>%filter(timepoint=="T2")
 
@@ -721,6 +735,7 @@ pca<-ggplot(pca_plotdata%>%filter(timepoint!="T7")%>%unite(group,phenotype,timep
   xlab("PC1 (9.1%)")+ylab("PC2 (3.6%)");pca
 
 # venndata<-out%>%filter(padj<0.01);venndatalist<-split(venndata$cluster, venndata$treatment)
+# write.table(venndata,"./manuscript/final_submission/source_data/fs2.txt",quote=FALSE,sep="\t",row.names = FALSE)
 # venn<-ggVennDiagram(venndatalist,label='count',
 #               label_alpha = 0,
 #               color = 'black',
@@ -736,6 +751,9 @@ pca<-ggplot(pca_plotdata%>%filter(timepoint!="T7")%>%unite(group,phenotype,timep
 
 list<-out%>%filter(padj<0.01)%>%select(cluster)%>%distinct()
 dat<-out%>%semi_join(list,by='cluster')%>%select(-padj)%>%group_by(cluster)%>%spread(treatment,log2FoldChange)%>%column_to_rownames(var="cluster")
+write.table(dat,"./manuscript/final_submission/source_data/f4d.txt",quote=FALSE,sep="\t",row.names = FALSE)
+
+
 m<-dat
 heat_plotdat<-m%>%
   rownames_to_column(var="cluster")%>%
@@ -910,6 +928,9 @@ single<-ggplot(plot)+
   annotate("text",x=-2,y=-0.15,label="R= -0.9658; FDR p=0.073",hjust=0,size=2)+
   annotate("text",x=2,y=0.2,label="Putative ATPase\nCluster77005",color="orange",hjust=1,size=2);single
 
+write.table(plot,"./manuscript/final_submission/source_data/f5b.txt",quote=FALSE,sep="\t",row.names = FALSE)
+write.table(heats,"./manuscript/final_submission/source_data/f5a.txt",quote=FALSE,sep="\t",row.names = FALSE)
+
 ########################################## RESPONSE RELATIONSHIP ENRICHMENT GO_MWU ######################################### #####
 # quartz()
 # setwd("~/omics/mac19")
@@ -952,6 +973,8 @@ a<-bind_rows(read_delim("./data/GO_MWU_adv/MWU_BP_0_heats.txt",delim=" ")%>%muta
 b<-bind_rows(read_tsv("./data/GO_MWU_adv/BP_0_heats.txt"),
              read_tsv("./data/GO_MWU_adv/MF_0_heats.txt"),
              read_tsv("./data/GO_MWU_adv/CC_0_heats.txt"))%>%inner_join(.,a,by="name")
+
+write.table(b,"./manuscript/final_submission/source_data/f5c.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
 list<-b%>%select(name,delta.rank,p.adj)%>%distinct()%>%arrange(delta.rank)%>%
   mutate(label=paste0("p=",round(p.adj,3)))
