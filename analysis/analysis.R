@@ -120,7 +120,7 @@ c<-ggplot(chars)+geom_bar(aes(treatment,roc,fill=treatment),stat="identity")+
            axis.title.x=element_blank())
 
 quartz(w=7.2,h=2.5)
-plot_grid(NULL,timeline,plot_grid(a,b,c,rel_widths=c(4,1,1.1),nrow=1,align="h",axis="tb",labels=c("B","C","D"),label_size=8),ncol=1,rel_heights=c(0.15,1,2.5),labels=c("A",""),label_size=8,label_y=1.15)
+plot_grid(NULL,timeline,plot_grid(a,b,c,rel_widths=c(4,1,1.1),nrow=1,align="h",axis="tb",labels=c("b","c","d"),label_size=8),ncol=1,rel_heights=c(0.15,1,2.5),labels=c("a",""),label_size=8,label_y=1.2)
 
 
 y<-read_xlsx("./data/metadata.xlsx",sheet="small_frags")%>%clean_names()
@@ -497,7 +497,7 @@ nonbleached_labeled<-tag_facet2(nonbleached,
               tag_pool = my_tag2)
 
 quartz(w=7.2,h=3)
-plot_grid(plot_grid(trajectory,ed,nrow=2,align="v",axis="tb",rel_heights=c(2.5,1),labels=c("A","B"),label_size=8,label_y=c(0.99,1.2)),plot_grid(bleached_labeled,nonbleached_labeled,nrow=2,rel_heights=c(1,1.3),label_size=8,labels=c("C","")),rel_widths=c(1,2))
+plot_grid(plot_grid(trajectory,ed,nrow=2,align="v",axis="tb",rel_heights=c(2.5,1),labels=c("a","b"),label_size=8,label_y=c(0.99,1.2)),plot_grid(bleached_labeled,nonbleached_labeled,nrow=2,rel_heights=c(1,1.3),label_size=8,labels=c("c","")),rel_widths=c(1,2))
 
 write.table(plotdata,"./manuscript/final_submission/source_data/f2c.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
@@ -592,7 +592,7 @@ basalplot<-ggplot(basal_comparison)+
   scale_y_continuous(limits=c(-3,4))
 
 quartz(w=5.2,h=2.5)
-plot_grid(heritplot,basalplot,align="h",axis="tb",labels=c("A","B"),label_size=8)
+plot_grid(heritplot,basalplot,align="h",axis="tb",labels=c("a","b"),label_size=8)
 write.table(herit,"./manuscript/final_submission/source_data/f3a.txt",quote=FALSE,sep="\t",row.names = FALSE)
 write.table(basal_comparison,"./manuscript/final_submission/source_data/f3b.txt",quote=FALSE,sep="\t",row.names = FALSE)
 
@@ -787,11 +787,11 @@ plots<-cowplot::align_plots(pca,bar,heat,side,align="h",axis="tb")
 
 quartz(w=7.2,h=2.5)
 plot_grid(plot_grid(NULL,NULL,top,NULL,NULL,rel_widths=c(2,3.7,1,0.35,0.4),nrow=1),
-          plot_grid(plots[[1]],plot_grid(reg,plots[[2]],ncol=1,align="v",axis="lr",labels=c("B","C"),label_size=8,label_x=c(-0.05,-0.05)),plots[[3]],plots[[4]],NULL,nrow=1,rel_widths=c(2,1.5,0.75,0.2,0.2),labels=c("A","","D"),label_size=8,label_x=c(0,0,-0.05)),
+          plot_grid(plots[[1]],plot_grid(reg,plots[[2]],ncol=1,align="v",axis="lr",labels=c("b","c"),label_size=8,label_x=c(-0.05,-0.05)),plots[[3]],plots[[4]],NULL,nrow=1,rel_widths=c(2,1.5,0.75,0.2,0.2),labels=c("a","","d"),label_size=8,label_x=c(0,0,-0.05)),
           nrow=2,rel_heights=c(1,25))+
   draw_label("N=5267",fontface = "italic", size=6,x=0.93,y=0.96)
 
-########################################## SHARED CONSTNAT PULSE PATTERNS ENRICHMENT ####################################### #####
+########################################## SHARED CONSTANT &PULSE PATTERNS ENRICHMENT ####################################### #####
 cluster_list<-read_tsv("./data/reference/cluster_list.txt",col_names = FALSE)%>%dplyr::rename(cluster=1,contig=2)%>%fill(cluster)%>%drop_na()
 GO<-read_tsv("./data/reference/GO_output.txt",col_names = FALSE)%>%dplyr::rename(gene=1,GO=2)
 blast<-read_tsv("./data/reference/blast_output.txt",col_names=FALSE)%>%
@@ -1025,9 +1025,9 @@ p2<-ggplot(b%>%mutate(name=case_when(name=="hydrolase activity, acting on acid a
   xlab("Correlation (DEG ~ Acclimatization Potential)");p2
 
 quartz(w=5.5,h=4)
-plot_grid(p1,p2,nrow=2,rel_heights=c(1,1.5),align="v",axis="lr",labels=c("A","C"),label_size=8)+
+plot_grid(p1,p2,nrow=2,rel_heights=c(1,1.5),align="v",axis="lr",labels=c("a","c"),label_size=8)+
   draw_plot(single, .6, 0.6, .4,.4)+ #xywh
-  draw_label("B", color = "black", size = 8, angle = 0,x=0.59,y=0.98,  fontface = "bold")
+  draw_label("b", color = "black", size = 8, angle = 0,x=0.59,y=0.98,  fontface = "bold")
   
 ########################################## CLUSTER 77005 ANNOTATION ######################################################## #####
 cluster_list<-read_tsv("./data/reference/cluster_list.txt",col_names = FALSE)%>%dplyr::rename(cluster=1,contig=2)%>%fill(cluster)%>%drop_na()
