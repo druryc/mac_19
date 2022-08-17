@@ -9,6 +9,7 @@ Data and code associated with:
 <sup>2</sup> University of Southern California, Los Angeles, CA  
 <sup>3</sup> US Geological Survey, Northwestern Fisheries Research Center, Seattle, WA  
 
+Published in *Nature Communications*: https://www.nature.com/articles/s41467-022-32452-4.pdf
 
 Raw sequencing data is available at NCBI under Bioproject PRJNA847955.
 
